@@ -2,7 +2,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 
 const App = () => {
-  const [user, setUser] = useState({});
+  const [user, setUser] = useState([]);
   const [create, setCreate] = useState(false);
   const [edit, setEdit] = useState(false)
   const [userAdd, setUserAdd] = useState({
@@ -127,7 +127,7 @@ const App = () => {
                 <button
                   type="button"
                   class="btn btn-danger"
-                  onclick={()=>setCreate(false)}
+                  onClick={()=>setCreate(false)}
                 >
                   Cancel
                 </button>
