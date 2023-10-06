@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react";
 const App = () => {
   const [user, setUser] = useState({});
   const [create, setCreate] = useState(false);
-  const [edit, setEdit] = useState(false)
   const [userAdd, setUserAdd] = useState({
     name: "",
     role: "",
@@ -63,14 +62,14 @@ const App = () => {
           </tr>
         </thead>
         <tbody>
-          {/* {user.map((e, i) => (
+          {user.map((e, i) => (
             <tr key={e.i}>
               <th scope="row">{i + 1}</th>
-              <td>{edit ? (<input value={e.name} name="name" onChange={handleChange}/>) : <p>{e.name}</p>}</td>
-              <td>{edit ? (<input value={e.role} name="role" onChange={handleChange}/>) : <p>{e.role}</p>}</td>
-              <td>{edit ? (<input value={e.email} name="email" onChange={handleChange}/>) : <p>{e.email}</p>}</td>
+              <td>{e.name}</td>
+              <td>{e.role}</td>
+              <td>{e.email}</td>
               <td>
-                <button type="button" class="btn btn-primary" onClick={()=>setEdit(true)}>
+                <button type="button" class="btn btn-primary">
                   Edit
                 </button>
               </td>
@@ -84,7 +83,7 @@ const App = () => {
                 </button>
               </td>
             </tr>
-          ))} */}
+          ))}
 
 
           {create ? (
