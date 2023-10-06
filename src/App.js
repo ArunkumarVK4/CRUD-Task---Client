@@ -63,7 +63,7 @@ const App = () => {
           </tr>
         </thead>
         <tbody>
-          {/* {user.map((e, i) => (
+          {user.map((e, i) => (
             <tr key={e.i}>
               <th scope="row">{i + 1}</th>
               <td>{edit ? (<input value={e.name} name="name" onChange={handleChange}/>) : <p>{e.name}</p>}</td>
@@ -84,7 +84,7 @@ const App = () => {
                 </button>
               </td>
             </tr>
-          ))} */}
+          ))}
 
 
           {create ? (
