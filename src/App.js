@@ -3,10 +3,14 @@ import React, { useEffect, useState } from "react";
 
 const App = () => {
   const [user, setUser] = useState([]);
-  const [create, setCreate] = useState(false);
-  const [edit, setEdit] = useState(false);
-  const [cancel, setCancel] = useState(false);
-  const [editedRowIndex, setEditedRowIndex] = useState(null)
+  const [isCreating, setIsCreating] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+  });
 
   const [userAdd, setUserAdd] = useState({
     name: "",
@@ -14,6 +18,7 @@ const App = () => {
     email: "",
   });
 
+  // Get All Data
   useEffect(() => {
     const getUsersList = async () => {
       try {
@@ -28,53 +33,76 @@ const App = () => {
     getUsersList();
   }, []);
 
-  const handleChange = (event) => {
+  const handleChange = (event, id) => {
     const { name, value } = event.target;
-    setUserAdd({
-      ...userAdd,
+    setUser((prevUsers) =>
+      prevUsers.map((user) =>
+        user._id === id ? { ...user, [name]: value } : user
+      )
+    );
+  };
+
+ 
+
+  const handleChangeApi = (event) => {
+    const { name, value } = event.target;
+    setFormData({
+      ...formData,
       [name]: value,
     });
   };
 
-  const submitHandler = () => {
-    const submit = async () => {
-      if (!userAdd.name || !userAdd.role || !userAdd.email) {
-        alert("All inputs Needed");
-      } else {
-        await axios.post("http://localhost:8080/add", userAdd);
-        setUserAdd({name:"",email:"", role:""})
-        setCreate(false)
-       const res = await axios.get("http://localhost:8080/")
-        setUser(res.data)
-      }
-    };
-    submit();
+  // Add User
+  const submitHandler = async () => {
+    console.log(formData)
+    if (!formData.name || !formData.role || !formData.email) {
+      alert("All inputs are needed");
+    } else {
+      await axios.post("http://localhost:8080/add", formData);
+      setUserAdd({ name: "", email: "", role: "" });
+      setIsCreating(false);
+      const res = await axios.get("http://localhost:8080/");
+      setUser(res.data);
+
+    }
   };
 
-  const handleDelete = (e) => {
-    const deleteUser = async () => {
-      await axios.delete(`http://localhost:8080/delete/${e._id}`);
-      const res = await axios.get("http://localhost:8080");
-      setUser(res.data);
-    };
-    deleteUser();
+  const handleEdit = (id) => {
+    setEditingId(id);
   };
 
-  const saveUpdate = (e)=>{
-    const updateUser = async () => {
-      await axios.put(`http://localhost:8080/delete/${e._id}`);
+  // Update User
+  const saveUpdate = async (e) => {
+    console.log(e)
+    try {
+      await axios.put(`http://localhost:8080/update/${e._id}`, e);
       const res = await axios.get("http://localhost:8080");
       setUser(res.data);
-      alert("updated Successfully")
-    };
-    updateUser();
-  }
+      setEditingId(null);
+      alert("Updated Successfully");
+    } catch (err) {
+      console.error("Error updating user:", err);
+    }
+  };
+
+  // Delete User
+  const handleDelete = async (id) => {
+    console.log(id)
+    try {
+      await axios.delete(`http://localhost:8080/delete/${id}`);
+      const res = await axios.get("http://localhost:8080");
+      setUser(res.data);
+    } catch (err) {
+      console.error("Error deleting user:", err);
+    }
+  };
+
   return (
     <>
       <button
         type="button"
         className="btn btn-primary"
-        onClick={() => setCreate(true)}
+        onClick={() => setIsCreating(true)}
       >
         Create
       </button>
@@ -93,32 +121,44 @@ const App = () => {
             <tr key={i}>
               <th scope="row">{i + 1}</th>
               <td>
-                {edit   ? (
-                  <input value={e.name} name="name" onChange={handleChange} />
+                {editingId === e._id ? (
+                  <input
+                    value={e.name}
+                    name="name"
+                    onChange={(event) => handleChange(event, e._id)}
+                  />
                 ) : (
                   <p>{e.name}</p>
                 )}
               </td>
               <td>
-                {edit ? (
-                  <input value={e.role} name="role" onChange={handleChange} />
+                {editingId === e._id ? (
+                  <input
+                    value={e.role}
+                    name="role"
+                    onChange={(event) => handleChange(event, e._id)}
+                  />
                 ) : (
                   <p>{e.role}</p>
                 )}
               </td>
               <td>
-                {edit ? (
-                  <input value={e.email} name="email" onChange={handleChange} />
+                {editingId === e._id ? (
+                  <input
+                    value={e.email}
+                    name="email"
+                    onChange={(event) => handleChange(event, e._id)}
+                  />
                 ) : (
                   <p>{e.email}</p>
                 )}
               </td>
               <td>
-                {edit ? (
+                {editingId === e._id ? (
                   <button
                     type="button"
-                    classNameName="btn btn-primary"
-                    onClick={()=>saveUpdate(e)}
+                    className="btn btn-primary"
+                    onClick={() => saveUpdate(e)}
                   >
                     Save
                   </button>
@@ -126,66 +166,49 @@ const App = () => {
                   <button
                     type="button"
                     className="btn btn-primary"
-                    
-                    onClick={() => {
-                      setEdit(true);
-                      setCancel(true);
-                    }}
+                    onClick={() => handleEdit(e._id)}
                   >
                     Edit
                   </button>
                 )}
               </td>
               <td>
-                {cancel ? (
-                  <button
-                    type="button"
-                    className="btn btn-danger"
-                    onClick={() => {
-                      setCancel(false);
-                      setEdit(false);
-                    }}
-                  >
-                    Cancel
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    className="btn btn-danger"
-                    onClick={() => handleDelete(e)}
-                  >
-                    Delete
-                  </button>
-                )}
+                {editingId === e._id ?(<button onClick={()=>setEditingId(null)}>Cancel</button>):<button
+                  type="button"
+                  className="btn btn-danger"
+                  onClick={() => handleDelete(e._id)}
+                >
+                  Delete
+                </button>}
               </td>
             </tr>
           ))}
 
-          {create ? (
+          {isCreating && (
             <tr>
               <th scope="row">{}</th>
               <td>
                 <input
                   type="text"
-                  onChange={handleChange}
+                  onChange={handleChangeApi}
                   name="name"
-                  value={userAdd.name}
+                  value={formData.name}
                 ></input>
               </td>
               <td>
                 <input
                   type="text"
-                  onChange={handleChange}
+                  onChange={handleChangeApi}
                   name="role"
-                  value={userAdd.role}
+                  value={formData.role}
                 ></input>
               </td>
               <td>
                 <input
                   type="text"
-                  onChange={handleChange}
+                  onChange={handleChangeApi}
                   name="email"
-                  value={userAdd.email}
+                  value={formData.email}
                 ></input>
               </td>
               <td>
@@ -201,14 +224,12 @@ const App = () => {
                 <button
                   type="button"
                   className="btn btn-danger"
-                  onClick={() => setCreate(false)}
+                  onClick={() => setIsCreating(false)}
                 >
                   Cancel
                 </button>
               </td>
             </tr>
-          ) : (
-            ""
           )}
         </tbody>
       </table>
@@ -217,3 +238,5 @@ const App = () => {
 };
 
 export default App;
+
+
