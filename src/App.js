@@ -5,18 +5,13 @@ const App = () => {
   const [user, setUser] = useState([]);
   const [isCreating, setIsCreating] = useState(false);
   const [editingId, setEditingId] = useState(null);
-  
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-  });
 
-  const [userAdd, setUserAdd] = useState({
-    name: "",
-    role: "",
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
     email: "",
   });
+
 
   // Get All Data
   useEffect(() => {
@@ -42,8 +37,6 @@ const App = () => {
     );
   };
 
- 
-
   const handleChangeApi = (event) => {
     const { name, value } = event.target;
     setFormData({
@@ -54,16 +47,15 @@ const App = () => {
 
   // Add User
   const submitHandler = async () => {
-    console.log(formData)
+    console.log(formData);
     if (!formData.name || !formData.role || !formData.email) {
       alert("All inputs are needed");
     } else {
       await axios.post("http://localhost:8080/add", formData);
-      setUserAdd({ name: "", email: "", role: "" });
+      setFormData({ name: "", email: "", role: "" });
       setIsCreating(false);
       const res = await axios.get("http://localhost:8080/");
       setUser(res.data);
-
     }
   };
 
@@ -73,7 +65,7 @@ const App = () => {
 
   // Update User
   const saveUpdate = async (e) => {
-    console.log(e)
+    console.log(e);
     try {
       await axios.put(`http://localhost:8080/update/${e._id}`, e);
       const res = await axios.get("http://localhost:8080");
@@ -87,13 +79,16 @@ const App = () => {
 
   // Delete User
   const handleDelete = async (id) => {
-    console.log(id)
-    try {
-      await axios.delete(`http://localhost:8080/delete/${id}`);
-      const res = await axios.get("http://localhost:8080");
-      setUser(res.data);
-    } catch (err) {
-      console.error("Error deleting user:", err);
+    console.log(id);
+    var answer = window.confirm("Are you Sure?");
+    if (answer) {
+      try {
+        await axios.delete(`http://localhost:8080/delete/${id}`);
+        const res = await axios.get("http://localhost:8080");
+        setUser(res.data);
+      } catch (err) {
+        console.error("Error deleting user:", err);
+      }
     }
   };
 
@@ -173,13 +168,17 @@ const App = () => {
                 )}
               </td>
               <td>
-                {editingId === e._id ?(<button onClick={()=>setEditingId(null)}>Cancel</button>):<button
-                  type="button"
-                  className="btn btn-danger"
-                  onClick={() => handleDelete(e._id)}
-                >
-                  Delete
-                </button>}
+                {editingId === e._id ? (
+                  <button onClick={() => setEditingId(null)}>Cancel</button>
+                ) : (
+                  <button
+                    type="button"
+                    className="btn btn-danger"
+                    onClick={() => handleDelete(e._id)}
+                  >
+                    Delete
+                  </button>
+                )}
               </td>
             </tr>
           ))}
@@ -238,5 +237,3 @@ const App = () => {
 };
 
 export default App;
-
-
